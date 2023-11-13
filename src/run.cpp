@@ -37,10 +37,14 @@ struct Query {
     std::string sql_selproj = read("sql/" + name + "-selproj.sql");
     std::string sql_aggregate = read("sql/" + name + "-aggregate.sql");
 
+    std::string domain_name_standard = name + "-standard";
+    ___itt_domain *domain_standard =
+        __itt_domain_create(domain_name_standard.c_str());
+    std::string domain_name_prejoined = name + "-prejoined";
+    ___itt_domain *domain_prejoined =
+        __itt_domain_create(domain_name_prejoined.c_str());
+
     for (int trial = 0; trial < num_trials; ++trial) {
-      std::string domain_name_standard = name + "-standard";
-      ___itt_domain *domain_standard =
-          __itt_domain_create(domain_name_standard.c_str());
       __itt_resume();
       __itt_frame_begin_v3(domain_standard, nullptr);
       float time_standard = time([&] { con.Query(sql_standard)->Print(); });
@@ -48,9 +52,6 @@ struct Query {
       __itt_pause();
       out << name << ',' << trial << ",standard," << time_standard << '\n';
 
-      std::string domain_name_prejoined = name + "-prejoined";
-      ___itt_domain *domain_prejoined =
-          __itt_domain_create(domain_name_prejoined.c_str());
       __itt_resume();
       __itt_frame_begin_v3(domain_prejoined, nullptr);
       float time_prejoined = time([&] { con.Query(sql_prejoined)->Print(); });
